@@ -106,7 +106,7 @@ img {
 </div>
 <div id="reproducible-research" class="section level3">
 <h3>Reproducible Research</h3>
-<p>Besides the output article in PDF or HTML format, the work of this project can be examined and reproduced by running codes on raw data. The codes are embeded in a R markdown file (RMD), and the raw data are stored in csv files. The RMD writeup and data files can be found in SYDE631 directory at <a href="https://github.com/sunbaoshi1975/UWStudy.git"><a href="https://github.com/sunbaoshi1975/UWStudy.git" class="uri">https://github.com/sunbaoshi1975/UWStudy.git</a></a>.</p>
+<p>Besides the output article in PDF or HTML format, the work of this project can be examined and reproduced by running codes on the raw data. The codes are embeded in a R markdown file (RMD), and the raw data are stored in csv files. The RMD writeup and data files can be found in SYDE631 directory at <a href="https://github.com/sunbaoshi1975/UWStudy.git"><a href="https://github.com/sunbaoshi1975/UWStudy.git" class="uri">https://github.com/sunbaoshi1975/UWStudy.git</a></a>.</p>
 </div>
 </div>
 <div id="exploratory-data-analysis" class="section level2">
@@ -352,7 +352,7 @@ accuracy(smodel.forecasts$mean[normalDateIndex], test.ts[normalDateIndex])</code
 ## sample estimates:
 ## mean of x mean of y 
 ##  1540.689  1728.700</code></pre>
-<p>As we can see, the accuracy of the forecast from 2015-09-25 to 2015-09-29, and from 2015-10-08 to 2015-10-22 is acceptable. The t-test of 95% confidence interval shows no significant difference (p-value = `r format(tResult$p.value, digits=3)’ &gt; 0.05 ) in means between the forecasts and the true values.</p>
+<p>As we can see, the accuracy of the forecast from 2015-09-25 to 2015-09-29, and from 2015-10-08 to 2015-10-22 is acceptable. The t-test of 95% confidence interval shows no significant difference (p-value = 0.0761 &gt; 0.05 ) in means between the forecasts and the true values.</p>
 </div>
 </div>
 <div id="conclusion" class="section level2">

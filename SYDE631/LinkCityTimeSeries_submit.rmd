@@ -2,7 +2,7 @@
 title: 'SYDE 631 Course Project: LinkCity Customer Traffic Time Series'
 author: "Baoshi Sun, WatID# 20625524"
 date: "Monday, November 30, 2015"
-output: html_document
+output: pdf_document
 Professor: Keith Hipel
 ---
 
@@ -46,7 +46,7 @@ During the project, the second batch of data (September 25 to the end of October
 Considering the purpose of this project is to practise the learning in the course, time series modelling methodology, such as seasonal models, TFN, intervention analysis, etc., will be employed as much as possible.
 
 ### Reproducible Research
-Besides the output article in PDF or HTML format, the work of this project can be examined and reproduced by running codes on raw data. The codes are embeded in a R markdown file (RMD), and the raw data are stored in csv files. The RMD writeup and data files can be found in SYDE631 directory at [https://github.com/sunbaoshi1975/UWStudy.git](https://github.com/sunbaoshi1975/UWStudy.git). 
+Besides the output article in PDF or HTML format, the work of this project can be examined and reproduced by running codes on the raw data. The codes are embeded in a R markdown file (RMD), and the raw data are stored in csv files. The RMD writeup and data files can be found in SYDE631 directory at [https://github.com/sunbaoshi1975/UWStudy.git](https://github.com/sunbaoshi1975/UWStudy.git). 
 
 ```{r loadLibs, echo=FALSE, results='hide', include=FALSE}
 # Notes: if fail to load library, use install.packages("Package Name") to download and install it first.
@@ -398,7 +398,7 @@ accuracy(smodel.forecasts$mean[normalDateIndex], test.ts[normalDateIndex])
 tResult <- t.test(smodel.forecasts$mean[normalDateIndex], test.ts[normalDateIndex]);tResult
 ```
 
-As we can see, the accuracy of the forecast from 2015-09-25 to 2015-09-29, and from 2015-10-08 to 2015-10-22 is acceptable. The t-test of 95% confidence interval shows no significant difference (p-value = `r format(tResult$p.value, digits=3)' > 0.05 ) in means between the forecasts and the true values. 
+As we can see, the accuracy of the forecast from 2015-09-25 to 2015-09-29, and from 2015-10-08 to 2015-10-22 is acceptable. The t-test of 95% confidence interval shows no significant difference (p-value = `r format(tResult$p.value, digits=3)` > 0.05 ) in means between the forecasts and the true values. 
 
 ## Conclusion
 Customer traffic analysis is very impotant to retailers. The customer traffic presents strong  correlation with time. But the time series modelling methods are rarely used in the customer traffic research before.  
