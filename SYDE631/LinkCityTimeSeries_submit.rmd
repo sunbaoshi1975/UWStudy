@@ -1,0 +1,433 @@
+---
+title: 'SYDE 631 Course Project: LinkCity Customer Traffic Time Series'
+author: "Baoshi Sun, WatID# 20625524"
+date: "Monday, November 30, 2015"
+output: html_document
+Professor: Keith Hipel
+---
+
+## Synopsis
+In the course SYDE 631 (Time Series Modelling, 2015 Fall) by Professor Keith Hipel, the rich variety of time series models that are defined, explained and illustrated. This project attemps to apply the knowledge and skills acquired from the course to solve an essential problem for retail business: the customer traffic analysis. Fresh data from a shopping mall are adopted. Seasonal model is mainly used to fit and forcast the customer traffic, cross validation is conducted, and a number of further research topics are proposed as well. 
+
+```{r setOptions, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Background
+### About LinkCity
+LinkCity is a middle-sized shopping mall in Suzhou, China. The 6-storeyed mall sized 600,000 square foot offers shopping, catering, cinema, gaming, supermarket, and many other retail services. In early 2015, LinkCity deployed more than 200 Wi-Fi access points, so that all business areas and parking lot are covered with Wi-Fi signal. 
+
+![LinkCity-Building](https://farm6.staticflickr.com/5821/23152563270_82bb2da235.jpg "LinkCity")
+  
+With the new Wi-Fi infrastructure, LinkCity offers high speed free Wi-Fi access to its customers. On the other hand, the Wi-Fi system can record a lot of useful data of users' mobile devices, such as device presence status, dwelling duration, shopping path, phone number, device type, customer geo-distribution, and so on.
+
+![LinkCity-FloorPlan](https://farm1.staticflickr.com/672/23339898522_fc22ccbfe8.jpg "FloorPlan")
+
+To reveal the value of these data, a few systems, for example customer grading system and recommendation system, are developed. However, they are just a small fraction of what could be studied. Much more topics still wait to be explored. One of the most important topic is the customer traffic analysis and forecast.
+
+If we assume the number of Wi-Fi users can reflect the population of customers, we can use the statistics of Wi-Fi users to estimate the overall customer traffic.
+
+### Motivation of Study
+Althoug it is readily comprehensible that "how understanding customer traffic patterns can help good retailers become great retailers" (Mark Ryski 2011),  little empirical evidence exists on the insight of store traffic characteristics (Perdikaki, O., Kesavan S., & Swaminathan J.M. 2012). In addition, because of the lack of traffic data, many studies use the number of transactions as a proxy for store traffic (e.g., Walters and Rinne 1986, Walters and MacKenzie 1988).
+
+As the Wi-Fi users can reflect the population of retail customers, it is reasonable to perform traffic analysis on the data of Wi-Fi users. In recent years, researchers and business operators began to employ Wi-Fi data over a variaty of venues to highlight differences in traffic volumes and patterns (Ghosh, A. 2011).
+
+On the other hand, few articles, which make use of time series to study the customer traffic, could be found. However, intuitively, given a specific venue, for example a shopping mall or a specialty store, the customer traffic should be able to be expressed as a function of time.
+
+### Data and Methodology
+In this study, the Wi-Fi user login records in LinkCity from May 1, 2015 to September 24, 2015 are obtained. For each record, we picked four data fields (variables) for traffic analysis, including:  
+-- "loginid": Wi-Fi user login ID, such as phone number or social media username  
+-- "nasidentifier": Wi-Fi Access Point Mac address, which can be used to determine user location  
+-- "callingstationId": Wi-Fi device Mac address  
+-- "responsetime": Wi-Fi user login time  
+
+During the project, the second batch of data (September 25 to the end of October) were received. These data are used for model validation. Of course, we can also combine the two batches of datasets together, re-train our models and examine the influence of the enlarged size of observations. 
+
+Considering the purpose of this project is to practise the learning in the course, time series modelling methodology, such as seasonal models, TFN, intervention analysis, etc., will be employed as much as possible.
+
+### Reproducible Research
+Besides the output article in PDF or HTML format, the work of this project can be examined and reproduced by running codes on raw data. The codes are embeded in a R markdown file (RMD), and the raw data are stored in csv files. The RMD writeup and data files can be found in SYDE631 directory at [https://github.com/sunbaoshi1975/UWStudy.git](https://github.com/sunbaoshi1975/UWStudy.git). 
+
+```{r loadLibs, echo=FALSE, results='hide', include=FALSE}
+# Notes: if fail to load library, use install.packages("Package Name") to download and install it first.
+library("dplyr")
+library(ggplot2)
+library(scales)
+library(Kendall)
+library(forecast)
+library(nortest)
+```
+
+## Exploratory Data Analysis
+### Load the Wi-Fi raw data
+Each row of the raw data represents a record of a Wi-Fi user's login operation. To narrow down the size of data table, irrelevant fields are filtered out except for the four variables those we mentioned before. 
+
+```{r commonDef}
+# some constants
+strTimeZone <- "asia/shanghai"
+fn_train <- 'sa_accessrecord.csv'
+strStartTime <- '2015-05-01 00:00:01'
+strEndTime <- '2015-09-24 23:59:59'
+
+fn_test <- 'sa_accessrecord2.csv'
+strActStart <- '2015-09-25 00:00:01'
+strActEnd <- '2015-10-22 23:59:59'
+
+## This path should be changed accordingly when performing reproducible research on your computer
+#setwd("C:\\Users\\Baoshi\\Desktop\\SYDE631\\Data\\LINK\\Data")
+
+loadRawData <- function(filename)
+{
+    suppressWarnings(raw.data <- read.csv(filename, header=TRUE, na.strings=c("NA","#DIV/0!","")))
+
+    ## Filter data
+    columns <- c("loginid")
+    columns <- c(columns, "nasidentifier")
+    #columns <- c(columns, "callingstationId")
+    columns <- c(columns, "responsetime")
+    loaded <- raw.data[, columns]
+}
+
+getSortedData <- function(data, startTM, endTime)
+{
+    work.df <- data.frame(data)
+    work.df$responsetime <- as.POSIXct(work.df$responsetime, tz=strTimeZone)
+    Sorted <- work.df %>% 
+        filter(responsetime > as.POSIXct(startTM, tz=strTimeZone),
+            responsetime < as.POSIXct(endTime, tz=strTimeZone)) %>%
+        arrange(responsetime) %>% 
+        mutate(LoginDate = as.Date(responsetime, tz=strTimeZone))
+}
+```
+
+```{r loadMainDataset, cache=TRUE}
+work.data <- loadRawData(fn_train)
+```
+
+The local Weather condition data and the local CPI data are also loaded. The time spans of both datasets should be the same as the Wi-Fi raw data, say between May 1, 2015 and September 24, 2015.
+
+### Preprocess
+Since we intent to conduct a daily based time series analysis, the raw data should be preprocessed beforehand. The process consists of two major steps:  
+-- To trim out the data points earlier than '2015-05-01 00:00:01' and later than '2015-09-24 23:59:59'  
+-- To aggregate data on daily basis and count the number of user logins in each day
+
+Calcualte the time span of the dataset.
+```{r}
+ls.time <- sort(factor(work.data$responsetime))
+head(ls.time, 1); tail(ls.time, 1)
+```
+
+Only keep data between `r strStartTime` to `r strEndTime`.
+```{r, echo=FALSE, results='hide', cache=TRUE}
+sort.df <- getSortedData(work.data, strStartTime, strEndTime)
+```
+
+Then the detailed records are aggregated on daily basis, so that each record in the processed dataset represent the number of logins during a specific date.
+
+Samples of login records (raw data):  
+```{r}
+daily.df <- sort.df %>% group_by(LoginDate) %>% summarize(count = n())
+
+head(sort.df, 5);tail(sort.df, 5)
+```
+
+Raw Wi-Fi login records summary:  
+```{r}
+nRawData <- nrow(sort.df)
+nObs <- nrow(daily.df)
+strnRawData <- format(nRawData, big.mark=",")
+print(paste("  Total rows:", strnRawData, "from", strStartTime, "to", strEndTime));
+```
+
+"Samples of aggregated data on daily basis:"  
+```{r}
+show.dailydf <- cbind(head(daily.df, 10), "...", tail(daily.df, 10))
+show.dailydf
+
+# Another method to demostrate: Convert to time series
+## and show in calendar format
+ts.df <- ts(daily.df[,2], frequency = 7, start = c(1, 5))
+#print(ts.df, calendar = TRUE)
+
+#str(daily.df)
+summary(daily.df)
+
+## Add logarithmic field of user count
+daily.df <- mutate(daily.df, LogCount = log(count))
+
+## Add weekday field, use 1-7 (Monday is 1)
+daily.df <- mutate(daily.df, Weekday = format(LoginDate, "%u"))
+```
+
+A rough summary of the daily traffic can be seen above. There are totally `r strnRawData` login records throughout `r nObs` days or `r nObs / 7`  weeks.
+
+### Plotting
+From the plot of daily number of Wi-Fi users below, we can observe some characteristics:  
+-- Nontationary, which can also be verified by seansonal Mann-Kendall test  
+-- Periodic on weekly basis  
+-- Some exterem values, e.g. around May 1 and June 27  
+
+```{r}
+ggplot(data=daily.df, aes(x=LoginDate, y=count)) +
+    ylab('User Count') + 
+    xlab('Date') + 
+    ggtitle('LinkCity Wi-Fi User Trend') +  
+    scale_x_date(labels = date_format("%m/%d"), breaks="2 weeks") +
+    geom_line() 
+```
+
+Apply seanonal Mann-Kendall test to check the trend:  
+```{r, echo=TRUE}
+SeasonalMannKendall(ts.df)
+```
+The test result indicates a significant upward trend.  
+
+In addition, using the decompose() function, we can roughly break the data series into three parts: the trend component, the seasonal comonent and the white noise. In other words, we assume: 
+$$
+  Output = Trend + Seanonal + Noise  
+$$  
+  where
+  the output is the time series of Wi-Fi user data  
+
+By examining the plots of the decomposition of additive time series, the three characteristics get strong support. 
+
+Moreover, the nontationary trend appears to be a curve, which may be assumed as a longer seasonal circle, e.g. monthly or quarterly. From the physical point of view, the monthly or quarterly pattern of traffic somehow holds its stand. With more observations collected in the future, we can perform seasonal analysis on monthly and quarterly basis.  
+
+```{r}
+daily.components <- decompose(ts.df)
+plot(daily.components)
+```
+
+When we take a look at the ACF and PACF, the possible modelling directions may be pointed out.  
+1. The ACF and PACF of overall time series indicate seasonal models, weekly pattern in this case, should be required.  
+2. AR(p) process may be needed apparently.  
+3. MA(q) componont might also be needed. 
+
+To examine the data of each day througout a week, Box-and-whisker graphs are plotted out. From the plots, we can assume that the distributions of all means are normal and logarithmic transformation is not necessary.  
+
+```{r}
+## Box-and-whisker plots on weekdays
+par(mfrow=c(1,1))
+boxplot(count~Weekday, data=daily.df, main="LinkCity Wi-Fi User Count vs. Weekday", xlab="The day of week", ylab="User Count", names=c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+
+## or use ggplot
+##p <- ggplot(daily.df, aes(Weekday, count, group=Weekday)) + geom_boxplot()
+```
+
+## Hypotheses
+By putting the exploratory data analysis and the empirical understanding of retail customer traffic together, the following hypotheses are proposed.  
+1. Traffic is a seasonal ARMA on weekly basis  
+2. Traffic = Day of week + Weather Condition + CPI + Noise, 
+  where the day of week could be considered as a pulse intervention,  
+3. Intervention analysis can be employed for special events, like marketing promotion, major holidays and extreme weather.  
+4. The nonstationary part could be caused by external invention or a larger seasonal factor (monthly or quarterly).  
+
+In this project, we are going to focus on the first hypothesis. As the test of the other hypotheses require extra external data and more observations, we will save them for future study once the necessary data are collected. 
+
+```{r}
+par(mfrow=c(1,2), mar=c(4,4,3,1))
+acf(daily.df$count, type = "correlation", lag=50, xlim=c(1,50), lab=c(50,5,7), main="Sample ACF")
+##lines(x=c(-1,25), y=c(0.025,0.025))
+##lines(x=c(-1,25), y=c(-0.025,-0.025))
+pacf(daily.df$count, lag=50, xlim=c(1,50), lab=c(50,5,7), main="Sample PACF")
+```
+
+## Seasonal Model 
+### Model identification
+As introduced in the course, there are a couple of candidates of seasonal models, including SARIMA, deseasonalized models, periodic models, etc. 
+
+Since it is obvious that the time series in this project follows a periodic pattern on weekly basis, in order to figure out the suitable seasonal method, the dataset is divided into seven subsets corresponding to the data on Monday to Sunday respectively. The plots of their ACF and PACF are illustrated below. 
+
+```{r}
+## Divide dataset by weekdays
+monday.df <- filter(daily.df, weekdays(LoginDate)=="Monday")
+tuesday.df <- filter(daily.df, weekdays(LoginDate)=="Tuesday")
+wednesday.df <- filter(daily.df, weekdays(LoginDate)=="Wednesday")
+thursday.df <- filter(daily.df, weekdays(LoginDate)=="Thursday")
+friday.df <- filter(daily.df, weekdays(LoginDate)=="Friday")
+saturday.df <- filter(daily.df, weekdays(LoginDate)=="Saturday")
+sunday.df <- filter(daily.df, weekdays(LoginDate)=="Sunday")
+
+par(mfrow=c(2,4), mar=c(4,4,3,1))
+
+acf(monday.df$count, type = "correlation", xlim=c(1,10), lag=10, lab=c(11,5,7), main="Sample ACF on Monday")
+acf(tuesday.df$count, type = "correlation", xlim=c(1,10), lag=10, lab=c(11,5,7), main="Sample ACF on Tuesday")
+acf(wednesday.df$count, type = "correlation", xlim=c(1,10), lag=10, lab=c(11,5,7), main="Sample ACF on Wednesday")
+acf(thursday.df$count, type = "correlation", xlim=c(1,10), lag=10, lab=c(11,5,7), main="Sample ACF on Thursday")
+
+pacf(monday.df$count, lag=10, lab=c(10,5,7), main="Sample PACF on Monday")
+pacf(tuesday.df$count, lag=10, lab=c(10,5,7), main="Sample PACF on Tuesday")
+pacf(wednesday.df$count, lag=10, lab=c(10,5,7), main="Sample PACF on Wednesday")
+pacf(thursday.df$count, lag=10, lab=c(10,5,7), main="Sample PACF on Thursday")
+
+par(mfrow=c(2,3), mar=c(4,4,3,1))
+
+acf(friday.df$count, type = "correlation", xlim=c(1,10), lag=10, lab=c(11,5,7), main="Sample ACF on Friday")
+acf(saturday.df$count, type = "correlation", xlim=c(1,10), lag=10, lab=c(11,5,7), main="Sample ACF on Saturday")
+acf(sunday.df$count, type = "correlation", xlim=c(1,10), lag=10, lab=c(11,5,7), main="Sample ACF on Sunday")
+
+pacf(friday.df$count, lag=10, lab=c(10,5,7), main="Sample PACF on Friday")
+pacf(saturday.df$count, lag=10, lab=c(10,5,7), main="Sample PACF on Saturday")
+pacf(sunday.df$count, lag=10, lab=c(10,5,7), main="Sample PACF on Sunday")
+```
+
+As we can see, for Monday to Thursday, the PACFs cut off at lag 1 and the ACFs die off from order 1 to 3. For Saturday, both ACF and PACF at lag 1 are only close to the significant confidence interval. The large value of PACF at lag 7 can be interpreted as external intervention. However, for Friday and Sunday, we can not obeserve any significant correlation. If we are not able construct separated models for Firday and Sunday, it is hard to apply periodic models. One possibe interpretion to this problem is that the correlation between the day and the day before it is much stronger than the correlation between the day and the day in previous week. 
+
+Furthermore, although deseasonalized models can reduce the number of paramters, it may not a good option in this case either considering the data points are not sufficent enough. Nevertheless, as the data are kept bringing in, we can apply deseasonalized model in the future. 
+
+On the other hand, the SARIMA turns out to be a proper choice. From the exploratory data analysis we performed, it is reasonable to assume the correlation within a week or across seasons is the same. 
+
+### Parameters estimation
+By taking the advantage of the auto.ariam function in the forecast package of R, which provides a shortcut of seasonal ARIMA model identification, we can quickly try and test quite a few combinations of SARIMA parameters and pick a proper the one with the MLE or minimum AIC. 
+
+```{r}
+suppressWarnings(smodel <- auto.arima(ts.df, lambda=0.1, allowdrift = FALSE))
+smodel
+```
+
+The result show a suitable model may be 
+$$
+    SARIMA(2, 1, 1)\times(2, 0, 0)_{7}
+$$
+
+The lambada of Box-Cox transformation is `r smodel$lambda`, and the value of AIC equals to `r sprintf("%0.2f", smodel$aic)`. The coefficients and their standard errors are shown above. In addition, the number of processes for both seanonal and nonseanonal components apparently conform to the ACF and PACF plots. 
+
+### Diagnostic checks
+#### Whiteness Check
+The residual plot and the residual autocorrelation function (RACF with 95% confidence limits) plot are drawn below.
+
+```{r}
+par(mfrow=c(1,2), mar=c(4,4,3,1))
+plot.ts(smodel$residuals, main="Residuals")
+racfplot <- acf(smodel$residuals, lag=10, plot=FALSE)
+plot(0:10, racfplot$acf[,1,1], lab=c(10,5,2), main="Residuals ACF", xlab="Lag", ylab="RACF", type="h")
+abline(h=0.168, col="blue", lty=2)
+abline(h=-0.168, col="blue", lty=2)
+abline(h=0, col="black", lty=1)
+```
+
+Ljung-Box test, a.k.a portmanteau test, is conducted to check the whiteness. 
+```{r, echo=TRUE}
+Box.test(smodel$residuals, type="Ljung-Box", lag=10)
+```
+
+The p-value is larger than 0.05, which means the residual can be considered as whiteness.
+
+#### Normality Check
+```{r}
+par(mfrow=c(1,1))
+plotForecastErrors <- function(forecasterrors, title, xlabel)
+{
+    # make a red histogram of the forecast errors:
+    mybinsize <- IQR(forecasterrors) / 4
+    mysd <- sd(forecasterrors)
+    mymin <- min(forecasterrors)
+    mymax <- max(forecasterrors) + mybinsize
+    mybins <- seq(mymin, mymax, mybinsize)
+    hist(forecasterrors, col="red", freq=FALSE, breaks=mybins, main=title, xlab=xlabel)
+    # freq=FALSE ensures the area under the histogram = 1
+    
+    # generate normally distributed data with mean 0 and standarrd deviation mysd
+    mynorm <- rnorm(10000, mean=0, sd=mysd)
+    myhist <- hist(mynorm, plot=FALSE)
+    
+    # plot the normal curve as a blue line on the top of the histogram of forecast errors:
+    points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
+}
+
+plotForecastErrors(smodel$residuals, "Residuals Distribution vs. NID(0, sd)", "Residual")
+```
+
+```{r, echo=TRUE}
+ad.test(smodel$residuals)
+```
+
+The graphical method displays an approximate normal distribution. However, the Anderson-Darling test rejected the hypothesis of normality. One of the possibility is the size of observations is not large enough. 
+
+#### Homoscedasticity Check
+The residual plot shows the variances are nearly constant over time. 
+
+In summary, the fitted SARIMA model can be considered to have passed the diagnostic check.
+
+## Forecasting and Validation
+### Forecasting
+With the fitted SARIMA model, we performs a 4-weeks-ahead forecast (from Sep 25 to Oct 22, 2015) and plots the results with 80% and 95% confidence intervals. The inversed Box-cox transformation is conducted automatically.
+
+```{r loadMoreData, cache=TRUE}
+# Load acutual data points
+test.data <- loadRawData(fn_test)
+test.df <- getSortedData(test.data, strActStart, strActEnd)
+test.daily <- test.df %>% group_by(LoginDate) %>% summarize(count = n())
+```
+
+```{r}
+smodel.forecasts <- forecast(smodel, h=28)
+smodel.forecasts
+
+test.ts <- ts(test.daily$count, start=start(smodel.forecasts$mean), end=end(smodel.forecasts$mean), frequency=7)
+
+par(mfrow=c(1,1))
+plot(smodel.forecasts, main="4 weeks ahead forecast from SARIMA(2,1,1)(2,0,0)[7] with Lambda 0.1")
+lines(test.ts, type="l", col="red")
+legend("topright", col=c("blue", "red"), lty=1, legend=c("forecast","actual"))
+```
+
+### Validation
+To verify the accuracy of the forecast, we collected the actual data points from Sep 25 to Oct 22, 2015. The actual data is depicted in red color on the plot. As can be seen, the accuracy of the forecasts is not quite good and the ACF of errors at lag 1 is larger than the confidence limits, which means the model can be improved. The errors may come from both model uncertainty and parameter uncertainty. 
+
+``` {r}
+fcastdates <- timeSequence(from=as.Date(strActStart, tz=strTimeZone), to=as.Date(strActEnd, tz=strTimeZone), by="day")
+fcastshow <- cbind(as.vector(smodel.forecasts$mean), as.vector(test.ts))
+fcastshow <- cbind(fcastshow, sprintf("%0.1f%%", abs(fcastshow[, 1] - fcastshow[, 2]) / fcastshow[, 2]*100))
+fcastshow <- cbind(format(fcastdates, "%Y-%m-%d"), fcastshow)
+colnames(fcastshow) <- c("Date", "Forecast", "Actual", "diff%")
+fcastshow
+```
+
+The overall forecast accuracy inclusive of the golden week holiday:  
+```{r}
+accuracy(smodel.forecasts$mean[], test.ts[])
+```
+
+On the other hand, considering the forecasted period is very close to the golden week for Chinese National Day, intervention factors should have been introduced in the reality.  In order to fit a better model, more training data those cover similar situation should be included. So if we screen off the data around the golden week (bewteen Sep 30 and Oct 7), the forecast accuracy of the rest date should be better. 
+
+The forecast accuracy excluded the golden week holiday:  
+```{r, echo=TRUE}
+normalDateIndex <- c(1:5, 14:28)
+accuracy(smodel.forecasts$mean[normalDateIndex], test.ts[normalDateIndex])
+tResult <- t.test(smodel.forecasts$mean[normalDateIndex], test.ts[normalDateIndex]);tResult
+```
+
+As we can see, the accuracy of the forecast from 2015-09-25 to 2015-09-29, and from 2015-10-08 to 2015-10-22 is acceptable. The t-test of 95% confidence interval shows no significant difference (p-value = `r format(tResult$p.value, digits=3)' > 0.05 ) in means between the forecasts and the true values. 
+
+## Conclusion
+Customer traffic analysis is very impotant to retailers. The customer traffic presents strong  correlation with time. But the time series modelling methods are rarely used in the customer traffic research before.  
+
+By applying basic time series methodology on the traffic data from a shopping mall, this course project demostrated the feasibility of this approach. Although the forecast accuracy is not perfect at this moment, the results are acceptable in the off-golen-week days. We are confident of the output can be improved by bringing in more data later.  
+
+In addition, a lot of future research directions are also discussed. We believe that time series modelling has enormous application opportunities in retail industry. 
+
+## Future Study Topics
+The project is just a debut of customer traffic analysis for LinkCity. In fact, there are plenty of topics need to be researched in the feature. Some of them are listed below. 
+1. Model refining with more observations  
+2. Monthly trend analysis by accumulating more data  
+3. Interventaion analysis, including wheather, CPI, etc.  
+The weather condition and CPI data come from public sources. The historic weather data of Suzhou contain temperature, wind, precipitation and air quality, which can be found at [http://lishi.tianqi.com/suzhou/](http://lishi.tianqi.com/suzhou/). ANd the CPI data of suzhou was excerpted from the URL at [http://lishi.tianqi.com/suzhou/](http://lishi.tianqi.com/suzhou/). But only monthly CPI data are available.  
+4. Traffic distribution analysis by floor and zone  
+5. Traffic versus sales volume by zone and store  
+6. Customer in-store dwelling duration (may also has seasonal character)  
+7. Trend of revisiting customers in one month or one week  
+8. Multi-location Traffic Analysis. LinkCity has several other shopping malls in the same city. If we can also collect the data from another shopping mall, CARMA model probably can be used for multi-location analysis.  
+
+## References
+Ghosh, A., Jana, R., Ramaswami, V., Rowland, J., & Shankaranarayanan, N. K. (2011). Modeling and characterization of large-scale Wi-Fi traffic in public hot-spots. In 2011 Proceedings IEEE INFOCOM (pp. 2921-2929). http://doi.org/10.1109/INFCOM.2011.5935132
+
+Ark Ryski. (2011). When retail customers count. Bloomington, Indiana: Author House  
+
+Perdikaki O, Kesavan S, Swaminathan JM. Effect of traffic on sales and conversion rates of retail stores. Manufacturing Service Oper. Management (2012) 14(1):145-162 Abstract  
+
+R in Time Series: Holt-Winters Smoothing and Forecast. (n.d.). Retrieved from http://www.quantlego.com/howto/holt-winters-smoothing-and-forecast/
+
+Retail Customer Traffic Counters In Retail Analytics | SenSource. (n.d.). Retrieved December 1, 2015, from http://sensourceinc.com/blog/retail-customer-traffic-counters-plays-vital-role-in-retail-analytics/
+
+Time Series Analysis: Building a model on non-stationary time series. (n.d.). Retrieved from http://www.r-bloggers.com/time-series-analysis-building-a-model-on-non-stationary-time-series/
