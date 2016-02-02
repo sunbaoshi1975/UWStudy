@@ -1,0 +1,90 @@
+ExifTool Version Number         : 10.09
+File Name                       : p1.jpg
+Directory                       : .
+File Size                       : 1713 kB
+File Modification Date/Time     : 2016:01:20 21:38:22-05:00
+File Access Date/Time           : 2016:01:20 21:42:57-05:00
+File Creation Date/Time         : 2016:01:20 21:38:27-05:00
+File Permissions                : rw-rw-rw-
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+Exif Byte Order                 : Big-endian (Motorola, MM)
+Make                            : Apple
+Camera Model Name               : iPhone 5s
+Orientation                     : Horizontal (normal)
+X Resolution                    : 72
+Y Resolution                    : 72
+Resolution Unit                 : inches
+Software                        : 7.1.2
+Modify Date                     : 2016:01:20 21:35:05
+Y Cb Cr Positioning             : Centered
+Exposure Time                   : 1/17
+F Number                        : 2.2
+Exposure Program                : Program AE
+ISO                             : 320
+Exif Version                    : 0221
+Date/Time Original              : 2016:01:20 21:35:05
+Create Date                     : 2016:01:20 21:35:05
+Components Configuration        : Y, Cb, Cr, -
+Shutter Speed Value             : 1/17
+Aperture Value                  : 2.2
+Brightness Value                : 0.1439669214
+Metering Mode                   : Multi-segment
+Flash                           : No Flash
+Focal Length                    : 4.1 mm
+Subject Area                    : 1630 1221 1224 734
+Run Time Flags                  : Valid
+Run Time Value                  : 286675599812916
+Run Time Scale                  : 1000000000
+Run Time Epoch                  : 0
+Sub Sec Time Original           : 759
+Sub Sec Time Digitized          : 759
+Flashpix Version                : 0100
+Color Space                     : sRGB
+Exif Image Width                : 3264
+Exif Image Height               : 2448
+Sensing Method                  : One-chip color area
+Scene Type                      : Directly photographed
+Exposure Mode                   : Auto
+White Balance                   : Auto
+Focal Length In 35mm Format     : 30 mm
+Scene Capture Type              : Standard
+Lens Info                       : 4.12mm f/2.2
+Lens Make                       : Apple
+Lens Model                      : iPhone 5s back camera 4.12mm f/2.2
+GPS Latitude Ref                : North
+GPS Longitude Ref               : West
+GPS Altitude Ref                : Above Sea Level
+GPS Time Stamp                  : 02:35:05.5
+GPS Img Direction Ref           : True North
+GPS Img Direction               : 334.5595855
+Compression                     : JPEG (old-style)
+Thumbnail Offset                : 1268
+Thumbnail Length                : 8804
+XMP Toolkit                     : XMP Core 5.4.0
+Filters                         : CIPhotoEffectInstant
+Image Width                     : 3264
+Image Height                    : 2448
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 (2 2)
+Aperture                        : 2.2
+GPS Altitude                    : 350.7 m Above Sea Level
+GPS Latitude                    : 43 deg 29' 53.98" N
+GPS Longitude                   : 80 deg 33' 56.62" W
+GPS Position                    : 43 deg 29' 53.98" N, 80 deg 33' 56.62" W
+Image Size                      : 3264x2448
+Megapixels                      : 8.0
+Run Time Since Power Up         : 3 days 7:37:55
+Scale Factor To 35 mm Equivalent: 7.3
+Shutter Speed                   : 1/17
+Create Date                     : 2016:01:20 21:35:05.759
+Date/Time Original              : 2016:01:20 21:35:05.759
+Thumbnail Image                 : (Binary data 8804 bytes, use -b option to extract)
+Circle Of Confusion             : 0.004 mm
+Field Of View                   : 61.9 deg
+Focal Length                    : 4.1 mm (35 mm equivalent: 30.0 mm)
+Hyperfocal Distance             : 1.87 m
+Light Value                     : 4.7

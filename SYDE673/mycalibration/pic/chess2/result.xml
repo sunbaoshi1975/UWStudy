@@ -1,0 +1,137 @@
+<?xml version="1.0" standalone="yes"?>
+<CalibrationProject>
+  <xs:schema id="CalibrationProject" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="CalibrationProject" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+      <xs:complexType>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="data">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ObjWidth" type="xs:int" minOccurs="0" />
+                <xs:element name="ObjHeight" type="xs:int" minOccurs="0" />
+                <xs:element name="FieldSize" type="xs:double" minOccurs="0" />
+                <xs:element name="DetectionMethod" type="xs:int" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="images">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ImagePath" type="xs:string" minOccurs="0" />
+                <xs:element name="SourceType" type="xs:int" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="results">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ImageCount" type="xs:int" minOccurs="0" />
+                <xs:element name="focus_lenX" type="xs:double" minOccurs="0" />
+                <xs:element name="focus_lenY" type="xs:double" minOccurs="0" />
+                <xs:element name="PrincipalX" type="xs:double" minOccurs="0" />
+                <xs:element name="PrincipalY" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist1" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist2" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist3" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist4" type="xs:double" minOccurs="0" />
+                <xs:element name="focus_lenX_er" type="xs:double" minOccurs="0" />
+                <xs:element name="focus_lenY_er" type="xs:double" minOccurs="0" />
+                <xs:element name="PrincipalX_er" type="xs:double" minOccurs="0" />
+                <xs:element name="PrincipalY_er" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist1_er" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist2_er" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist3_er" type="xs:double" minOccurs="0" />
+                <xs:element name="Dist4_er" type="xs:double" minOccurs="0" />
+                <xs:element name="dc_AllImage_errX" type="xs:double" minOccurs="0" />
+                <xs:element name="dc_AllImage_errY" type="xs:double" minOccurs="0" />
+                <xs:element name="Calib_Date" type="xs:string" minOccurs="0" />
+                <xs:element name="Calib_Type" type="xs:int" minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+  <data>
+    <ObjWidth>5</ObjWidth>
+    <ObjHeight>8</ObjHeight>
+    <FieldSize>28</FieldSize>
+    <DetectionMethod>3</DetectionMethod>
+  </data>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p1.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p2.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p3.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p4.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p5.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p6.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p7.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p8.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p9.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p10.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p11.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p12.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <images>
+    <ImagePath>D:\Shared\work\calibration\matlabtoolkit\TOOLBOX_calib_0_31b\chess2\p13.JPG</ImagePath>
+    <SourceType>0</SourceType>
+  </images>
+  <results>
+    <ImageCount>10</ImageCount>
+    <focus_lenX>2740.5374111538335</focus_lenX>
+    <focus_lenY>2743.397824280562</focus_lenY>
+    <PrincipalX>1641.9275418787804</PrincipalX>
+    <PrincipalY>1191.2769528107785</PrincipalY>
+    <Dist1>0.040630622786731116</Dist1>
+    <Dist2>0.15187150339353892</Dist2>
+    <Dist3>-0.00817537698107047</Dist3>
+    <Dist4>-0.0049484223117840839</Dist4>
+    <focus_lenX_er>20.531293869018555</focus_lenX_er>
+    <focus_lenY_er>18.58357048034668</focus_lenY_er>
+    <PrincipalX_er>14.965941429138184</PrincipalX_er>
+    <PrincipalY_er>20.622171401977539</PrincipalY_er>
+    <Dist1_er>0.040034819394350052</Dist1_er>
+    <Dist2_er>0.64375907182693481</Dist2_er>
+    <Dist3_er>0.0022408999502658844</Dist3_er>
+    <Dist4_er>0.0024219390470534563</Dist4_er>
+    <dc_AllImage_errX>0.51231821062596361</dc_AllImage_errX>
+    <dc_AllImage_errY>0.79749324837077651</dc_AllImage_errY>
+    <Calib_Date>2016-01-20 10:00:19 PM</Calib_Date>
+    <Calib_Type>2</Calib_Type>
+  </results>
+</CalibrationProject>

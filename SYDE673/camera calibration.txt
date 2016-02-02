@@ -1,0 +1,23 @@
+Camera Calibration  Actions for 'Camera Calibration'
+Print
+Read Szeliski chp 2.
+
+We will use the notes by Hager on camera calibration attached below.
+
+Supplemental reading is Zisserman Part 1, chapters 6& 7.
+
+Perspective Camera
+- A Flexible New Technique for Camera Calibration, Zhengyou Zhang (http://research.microsoft.com/en-us/um/people/zhang/calib/)
+- Camera Calibration Toolbox for Matlab, Jean-Yves Bouguet (http://www.vision.caltech.edu/bouguetj/calib_doc/)
+- GML Camera Calibration Toolbox: 
+	MATLAB (http://graphics.cs.msu.ru/en/node/910) , 
+	C++ (http://graphics.cs.msu.ru/en/research/projects/3dreconstruction/cppcalibration)
+- Chessboards: 
+	ROS (8x6, 7x6) (http://wiki.ros.org/camera_calibration/Tutorials/StereoCalibration), 
+	Starlino (10x7) (http://www.starlino.com/opencv_qt_stereovision.html), 
+	BoofCV (7x5) (http://boofcv.org/index.php?title=Tutorial_Camera_Calibration), 
+	Google Image Search (https://www.google.com/search?q=chessboard+camera+calibration&tbm=isch)
+	
+Omnidirectional Camera
+OCamCalib: Omnidirectional Camera Calibration Toolbox ... (Omnidirectional Camera and Calibration Toolbox), Davide Scaramuzza   
+	(https://sites.google.com/site/scarabotix/ocamcalib-toolbox)
