@@ -1,0 +1,29 @@
+Submit Files - mini project 2 - 2 viewpoint image sets
+Hide Folder Information
+Folder
+ 
+mini project 2 - 2 viewpoint image sets
+Instructions
+ 
+There are 3 parts to this assignment.  It is recommended that you use vlfeat with matlab to do all the work.
+
+1. You will be required to record a 5 second clip of something moving (could be your hand), use your phone camera. 
+I would like you to put a rectangular box around the object in the video sequence that you would like to track. 
+In that rectangular box, in the first frame, find all the sift features and their descriptors. 
+These features will be the features you will track from frame to frame and they constitute your tracker. 
+If certain features disappear, they are removed from your tracker. If new features appear, they are added to your tracker. 
+It will easier if the object you are tracking is rigid, if not, it can get complicated. 
+If you can use RANSAC to make your tracker more robust, try it. 
+Comment on how your tracker did, how many features were used, how many features changed during the clip, etc. (i.e., keep track).
+
+2. Using the middlebury stereo data set, in particular, 3 test sets from the 2014 data set http://vision.middlebury.edu/stereo/data/scenes2014/
+compute the homography and fundamental (camera matrices are provided) using the example from the vlfeat web site 
+http://www.vlfeat.org/applications/sift-mosaic-code.html
+The only caveat is that you will not do any mosaicing (the last bit of code).  
+Try to run these exercises using vlfeat. Given the fundamental matrix, there is a matlab function to compute the epipolar line. 
+Devise a routine to match along the epipolar line for only the features. Using the lecture notes we showed that we can compute the depth if we know the disparity. 
+For only the features points detected, compute the depth and compare to the ground truth provided.
+
+3. Using the vlfeat mosaic example from the previous page, try to mosaic at most 2 images from different viewpoints of the Trevi fountain in Rome.
+
+Upload video clips, annotated images, text describing results.  The images should show the features detected and how well they did.
