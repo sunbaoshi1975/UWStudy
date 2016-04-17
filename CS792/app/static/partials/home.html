@@ -1,0 +1,27 @@
+<div class="row">
+    <div class="text-center">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6 text-center">
+            <img src="/static/img/main.png" width="500">
+            <p>
+            Only care about your health. <a href="http://www.tmoly.com" target="_blank" style="color: red;">Download App</a>
+            </p>
+            <form ng-submit="go('/search/{{query}}')" class="form">
+                <div class="input-group">
+                    <input ng-minlength="2" ng-maxlength="50" ng-model="query" type="text" class="form-control" placeholder="Input disease or symptom, e.g. gall stone">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+                    </span>
+                </div>
+            </form>
+            <br>
+            <div class="tools-main" class="col-lg-5">
+                <a href="#/rss/{{query}}" data-toggle="tooltip" title="Medical News"><img src="/static/img/tool_news.png" style="width: 150px;"></a>
+                <a href="#/lbs/{{query}}" data-toggle="tooltip" title="Nearby Medical Services"><img src="/static/img/tool_lbs.png" style="width: 150px;"></a>
+                <a href="http://www.tmoly.com:8000" data-toggle="tooltip" title="Social Group" target="_blank"><img src="/static/img/tool_social.png" style="width: 150px;"></a>
+            </div>
+            <div style="display: block; margin-top: 200px;"></div>
+        </div>
+        <div class="col-lg-3"></div>
+    </div>
+</div>

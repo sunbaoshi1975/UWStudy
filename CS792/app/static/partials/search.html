@@ -1,0 +1,51 @@
+<div ng-show="!result" class="text-center" xmlns="http://www.w3.org/1999/html">
+    <img src="/static/img/loading_sm.gif">  Searching...
+</div>
+
+<div ng-show="result">
+    <div ng-show="false">
+        <h3>debug - page_count={{ page_count }}</h3>
+        <ul>
+            <li>{{ result[0] }}</li>
+            <li>{{ result[1] }}</li>
+            <li>{{ result[2] }}</li>
+            <li>{{ result[3] }}</li>
+            <li>{{ result[4] }}</li>
+        </ul>
+    </div>
+    <div class="row" ng-repeat="record in result | orderBy:orderByFunction | startFrom:(page_num-1)*page_size | limitTo:page_size track by $index" ng-init="rowid=$index">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <a target="_blank" href="{{record.link}}"><span class="glyphicon glyphicon-bookmark"></span> <strong>{{($index+1)+(page_num-1)*page_size}}. {{record.title}}</strong></a> <span ng-show="record.sim.length" ng-click="showDetails = !showDetails" ng-init="showDetails=false" class="label label-primary">{{record.sim.length}}Similar records <span ng-class="{true:'glyphicon glyphicon-chevron-up', false:'glyphicon glyphicon-chevron-down'}[showDetails]"></span></span>
+                        <span class="pull-right">MR: {{record.rank}}</span>
+                    </div>
+                </div>
+            </div>
+            <div ng-show="showDetails" class="panel-heading" ng-repeat="sim in record.sim">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <a target="_blank" href="{{sim.2}}">[similar content] {{sim.1}}</a>
+                        <span class="pull-right">{{sim.3}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body div-ellipsis">{{record.snippet}}</div>
+            <hr style="margin: 0px;">
+            <div class="panel-body" ng-show="record.images">
+                <p ng-if="record.images.length"><span class="glyphicon glyphicon-picture"></span> <a data-fancybox-group="fancy-group-{{rowid}}" class="fancy-image" target="_blank" href="{{image.0}}" title="{{image.1}}" ng-repeat="image in record.images"><img ng-src="{{image.0}}" err-src="/static/img/default_image.png" style="height: 30px;"> </a></p>
+            </div>
+        </div>
+    </div>
+    <div class="btn-group btn-group-justified">
+        <div class="btn-group">
+            <!-- <a ng-disabled="page_prev==-1" href="#/search/{{query}}/{{page_prev}}" type="button" class="btn btn-default">Previous</a> -->
+            <button class="btn btn-default" ng-disabled="page_num == 1" ng-click="page_num=page_num-1">Previous</button>
+        </div>
+        <div class="btn-group">
+            <!-- <a ng-disabled="page_next==-1" href="#/search/{{query}}/{{page_next}}" type="button" class="btn btn-default">Next</a> -->
+            <button class="btn btn-default" ng-disabled="page_num >=page_count" ng-click="page_num=page_num+1">Next ({{page_num}}/{{page_count}})</button>
+        </div>
+    </div>
+</div>
